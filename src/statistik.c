@@ -32,6 +32,8 @@
 /**
 	Init the stati_t struct
 	
+	@param preAllocSize
+		The initial allocated size
 	@return 
 		returns a new stati_t struct
 */
@@ -43,7 +45,6 @@ stati_t *stati_init(size_t preAllocSize)
 	if(preAllocSize>0)
 	{
 		ret->varcount=malloc(preAllocSize*sizeof(stati_list_t));
-		ret->vars=malloc(preAllocSize*sizeof(double));
 		ret->preAllocSize=preAllocSize;
 	}
 	
@@ -58,7 +59,6 @@ stati_t *stati_init(size_t preAllocSize)
 */
 void stati_destroy(stati_t *yourItems)
 {
-	free(yourItems->vars);
 	free(yourItems->varcount);
 	free(yourItems);
 }
@@ -73,7 +73,6 @@ static char *GLOBAL_BUFFER=(char[GLOBAL_STRING_ALLOC_SIZE]){0};
 */
 void stati_destroy(stati_t *yourItems)
 {
-	memset(yourItems->vars,0,sizeof(double)*yourItems->amount);
 	memset(yourItems->varcount,0,sizeof(stati_list_t)*yourItems->countamount);
 	memset(yourItems,0,sizeof(stati_t));
 }
@@ -81,15 +80,17 @@ void stati_destroy(stati_t *yourItems)
 #endif
 
 /**
-	Inserts an item into the object **USE THIS CAREFULLY**
+	Add an item generally to an object, use this when you want to insert an item
 
 	@param yourItems 
 		the object you want to insert the item into
 	@param item
 		the parameter to insert
 */
-void stati_insert_count_item(stati_t *yourItems,double item)
+void stati_add(stati_t *yourItems, double item)
 {
+	yourItems->amount++;
+	
 	for(size_t i=0;i<yourItems->countamount;i++)
 	{
 		if(yourItems->varcount[i].var==item)
@@ -105,6 +106,7 @@ void stati_insert_count_item(stati_t *yourItems,double item)
 		yourItems->varcount=realloc(yourItems->varcount,(yourItems->countamount+1)*sizeof(stati_list_t));
 		#else
 		stati_print("ERROR (OVERFLOW) IN : stati_insert_count_item\n");
+		yourItems->amount--;
 		return;
 		#endif
 	}
@@ -113,32 +115,6 @@ void stati_insert_count_item(stati_t *yourItems,double item)
 	yourItems->varcount[yourItems->countamount].var=item;
 	
 	yourItems->countamount++;
-}
-
-/**
-	Add an item generally to an object, use this when you want to insert an item
-
-	@param yourItems 
-		the object you want to insert the item into
-	@param item
-		the parameter to insert
-*/
-void stati_add(stati_t *yourItems, double item)
-{
-	if(yourItems->preAllocSize<(yourItems->amount+1))
-	{
-		#ifndef NO_ALLOC
-		yourItems->vars=realloc(yourItems->vars,(yourItems->amount+1)*sizeof(double));
-		#else
-		stati_print("ERROR (OVERFLOW) IN : stati_add\n");
-		return;
-		#endif
-	}
-	
-	yourItems->vars[yourItems->amount]=item;
-	yourItems->amount++;
-	
-	stati_insert_count_item(yourItems,item);
 }
 
 /**
@@ -151,19 +127,6 @@ void stati_add(stati_t *yourItems, double item)
 */
 void stati_sort(stati_t *yourItems)
 {
-	for(size_t i=0;i<yourItems->amount;i++)
-	{
-		for(size_t j=0;j<yourItems->amount;j++)
-		{
-			if(yourItems->vars[i]<yourItems->vars[j])
-			{
-				double tmp=yourItems->vars[i];
-				yourItems->vars[i]=yourItems->vars[j];
-				yourItems->vars[j]=tmp;
-			}
-		}
-	}
-	
 	for(size_t i=0;i<yourItems->countamount;i++)
 	{
 		for(size_t j=0;j<yourItems->countamount;j++)
@@ -193,9 +156,9 @@ double stati_mean(stati_t *yourItems)
 {
 	double out=0;
 	
-	for(size_t i=0;i<yourItems->amount;i++)
+	for(size_t i=0;i<yourItems->countamount;i++)
 	{
-		out+=yourItems->vars[i];
+		out+=yourItems->varcount[i].var*yourItems->varcount[i].amount;
 	}
 	
 	return out/(double)yourItems->amount;
@@ -214,9 +177,10 @@ double stati_mean_square(stati_t *yourItems)
 {
 	double out=0;
 	
-	for(size_t i=0;i<yourItems->amount;i++)
+	for(size_t i=0;i<yourItems->countamount;i++)
 	{
-		out+=yourItems->vars[i]*yourItems->vars[i];
+		double varSquared=yourItems->varcount[i].var*yourItems->varcount[i].var;
+		out+=varSquared*yourItems->varcount[i].amount;
 	}
 	
 	return out/(double)yourItems->amount;
@@ -252,10 +216,10 @@ double stati_sigma(stati_t *yourItems,uint8_t allDataCollected)
 double stati_get_lowest(stati_t *yourItems)
 {
 	double currLowest=DBL_MAX;
-	for(size_t i=0;i<yourItems->amount;i++)
+	for(size_t i=0;i<yourItems->countamount;i++)
 	{
-		if(yourItems->vars[i]<currLowest)
-			currLowest=yourItems->vars[i];
+		if(yourItems->varcount[i].var<currLowest)
+			currLowest=yourItems->varcount[i].var;
 	}
 	
 	return currLowest;
@@ -272,10 +236,10 @@ double stati_get_lowest(stati_t *yourItems)
 double stati_get_highest(stati_t *yourItems)
 {
 	double currHighest=-DBL_MAX;
-	for(size_t i=0;i<yourItems->amount;i++)
+	for(size_t i=0;i<yourItems->countamount;i++)
 	{
-		if(yourItems->vars[i]>currHighest)
-			currHighest=yourItems->vars[i];
+		if(yourItems->varcount[i].var>currHighest)
+			currHighest=yourItems->varcount[i].var;
 	}
 	
 	return currHighest;

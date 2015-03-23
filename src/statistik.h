@@ -37,10 +37,7 @@ typedef struct stati_list_t
 
 typedef struct stati_t
 {
-	//antalet variabler lista {1,4,3,4,-1,-1}
-	double *vars;
-	//antalet variabler ex 6
-	size_t amount;
+	size_t amount; ///< the amount of values you inserted in total
 	
 	//antalet av de olika elementen, ex 4-> 2 1->1 osv
 	stati_list_t *varcount;
@@ -52,7 +49,7 @@ typedef struct stati_t
 #ifndef NO_ALLOC
 stati_t *stati_init(size_t preAllocSize);
 #else
-#define stati_init(size) (&(stati_t){.preAllocSize=size,.varcount=((stati_list_t[size]){{0}}),.vars=((double[size]){0})})
+#define stati_init(size) (&(stati_t){.preAllocSize=size,.varcount=((stati_list_t[size]){{0}})})
 #endif
 
 void stati_destroy(stati_t *yourItems);
