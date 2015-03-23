@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <float.h>
 
 #include "statistik.h"
 
@@ -103,7 +104,7 @@ void stati_insert_count_item(stati_t *yourItems,double item)
 		#ifndef NO_ALLOC
 		yourItems->varcount=realloc(yourItems->varcount,(yourItems->countamount+1)*sizeof(stati_list_t));
 		#else
-		printf("ERROR (OVERFLOW) IN : %s LINE: %d\n",__func__,__LINE__);
+		stati_print("ERROR (OVERFLOW) IN : stati_insert_count_item\n");
 		return;
 		#endif
 	}
@@ -129,7 +130,7 @@ void stati_add(stati_t *yourItems, double item)
 		#ifndef NO_ALLOC
 		yourItems->vars=realloc(yourItems->vars,(yourItems->amount+1)*sizeof(double));
 		#else
-		printf("ERROR (OVERFLOW) IN : %s LINE: %d\n",__func__,__LINE__);
+		stati_print("ERROR (OVERFLOW) IN : stati_add\n");
 		return;
 		#endif
 	}
@@ -250,7 +251,7 @@ double stati_sigma(stati_t *yourItems,uint8_t allDataCollected)
 */
 double stati_get_lowest(stati_t *yourItems)
 {
-	double currLowest=999999999;
+	double currLowest=DBL_MAX;
 	for(size_t i=0;i<yourItems->amount;i++)
 	{
 		if(yourItems->vars[i]<currLowest)
@@ -270,7 +271,7 @@ double stati_get_lowest(stati_t *yourItems)
 */
 double stati_get_highest(stati_t *yourItems)
 {
-	double currHighest=-999999999;
+	double currHighest=-DBL_MAX;
 	for(size_t i=0;i<yourItems->amount;i++)
 	{
 		if(yourItems->vars[i]>currHighest)
@@ -400,11 +401,7 @@ char *stati_print_table(stati_t *yourItems)
 char *stati_print_all(stati_t *yourItems,uint8_t isComplete)
 {
 	char tmpstr[200];
-	#ifndef NO_ALLOC
 	char *out;
-	#else
-	char *out;
-	#endif
 	
 	out=stati_print_table(yourItems);
 	

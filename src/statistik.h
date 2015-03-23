@@ -50,15 +50,9 @@ typedef struct stati_t
 }stati_t;
 
 #ifndef NO_ALLOC
-
 stati_t *stati_init(size_t preAllocSize);
-#define stati_free(obj) free(obj)
-
 #else
-
 #define stati_init(size) (&(stati_t){.preAllocSize=size,.varcount=((stati_list_t[size]){{0}}),.vars=((double[size]){0})})
-#define free(obj)
-
 #endif
 
 void stati_destroy(stati_t *yourItems);
