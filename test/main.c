@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <string.h>
-#include <math.h>
 
 #include "statistik.h"
 
@@ -30,7 +28,7 @@ int main()
 	
 	char *out=stati_print_all(myStats,0);
 	printf("%s",out);
-	free(out);
+	stati_free(out);
 
 /*	stati_dump_to_file(myStats,0,"test.txt");*/
 	

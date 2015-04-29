@@ -22,60 +22,60 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 #include <float.h>
+#include <math.h>
 
 #include "statistik.h"
 
 #ifndef NO_ALLOC
 
-/**
-	Init the stati_t struct
+	/**
+		Init the stati_t struct
 	
-	@param preAllocSize
-		The initial allocated size
-	@return 
-		returns a new stati_t struct
-*/
-stati_t *stati_init(size_t preAllocSize)
-{
-	
-	stati_t *ret=calloc(1,sizeof(stati_t));
-	
-	if(preAllocSize>0)
+		@param preAllocSize
+			The initial allocated size
+		@return 
+			returns a new stati_t struct
+	*/
+	stati_t *stati_init(size_t preAllocSize)
 	{
-		ret->varcount=malloc(preAllocSize*sizeof(stati_list_t));
-		ret->preAllocSize=preAllocSize;
+	
+		stati_t *ret=calloc(1,sizeof(stati_t));
+	
+		if(preAllocSize>0)
+		{
+			ret->varcount=malloc(preAllocSize*sizeof(stati_list_t));
+			ret->preAllocSize=preAllocSize;
+		}
+	
+		return ret;
 	}
-	
-	return ret;
-}
 
-/**
-	Destroys/frees the stati_t struct
+	/**
+		Destroys/frees the stati_t struct
 	
-	@param yourItems 
-		the object to destroy
-*/
-void stati_destroy(stati_t *yourItems)
-{
-	free(yourItems->varcount);
-	free(yourItems);
-}
-
+		@param yourItems 
+			the object to destroy
+	*/
+	void stati_destroy(stati_t *yourItems)
+	{
+		free(yourItems->varcount);
+		free(yourItems);
+	}
 
 #else
-///<GLOBAL BUFFER is a temporary char that contains the information for the output.
-static char *GLOBAL_BUFFER=(char[GLOBAL_STRING_ALLOC_SIZE]){0};
 
-/**
-	In no malloc mode, the destroy function will just reset the value
-*/
-void stati_destroy(stati_t *yourItems)
-{
-	memset(yourItems->varcount,0,sizeof(stati_list_t)*yourItems->countamount);
-	memset(yourItems,0,sizeof(stati_t));
-}
+	///<GLOBAL BUFFER is a temporary char that contains the information for the output.
+	static char *GLOBAL_BUFFER=(char[GLOBAL_STRING_ALLOC_SIZE]){0};
+
+	/**
+		In no malloc mode, the destroy function will just reset the value
+	*/
+	void stati_destroy(stati_t *yourItems)
+	{
+		memset(yourItems->varcount,0,sizeof(stati_list_t)*yourItems->countamount);
+		memset(yourItems,0,sizeof(stati_t));
+	}
 
 #endif
 

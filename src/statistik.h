@@ -23,10 +23,12 @@
 #include <stdint.h>
 
 #ifndef NO_ALLOC
-#include <stdlib.h>
+	#include <stdlib.h>
+	#define stati_free(abs) free(abs)
 #else
-#include "nomalloc.h"
-#define free(abs) NULL
+	#include "nomalloc.h"
+	//stati free wont do anything
+	#define stati_free(abs) NULL
 #endif
 
 typedef struct stati_list_t
